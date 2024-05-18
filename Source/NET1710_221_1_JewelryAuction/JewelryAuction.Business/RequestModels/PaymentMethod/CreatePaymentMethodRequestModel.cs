@@ -1,9 +1,7 @@
-
-namespace Ecommerce.BusinessLogic.RequestModels.PaymentMethod 
+namespace Ecommerce.BusinessLogic.RequestModels.PaymentMethod
 {
-
-   public class CreatePaymentMethodRequestModel {
-     
-   }
-
+    public class CreatePaymentMethodRequestModel
+    {
+        public string PaymentMethodDescription { get; set; }
+    }
 }

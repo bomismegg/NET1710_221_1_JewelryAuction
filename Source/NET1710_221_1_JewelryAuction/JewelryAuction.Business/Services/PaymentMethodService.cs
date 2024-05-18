@@ -1,45 +1,75 @@
+using AutoMapper;
 using Ecommerce.BusinessLogic.RequestModels.PaymentMethod;
 using JewelryAuction.Business.ViewModels.PaymentMethod;
+using JewelryAuction.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace JewelryAuction.Business.Services
 {
 
     public interface IPaymentMethodService
     {
-        public PaymentMethodViewModel CreatePaymentMethod(CreatePaymentMethodRequestModel paymentmethodCreate);
-        public PaymentMethodViewModel UpdatePaymentMethod(UpdatePaymentMethodRequestModel paymentmethodUpdate);
-        public bool DeletePaymentMethod(int idTmp);
-        public List<PaymentMethodViewModel> GetAll();
-        public PaymentMethodViewModel GetById(int idTmp);
+        Task<PaymentMethodViewModel> CreatePaymentMethod(CreatePaymentMethodRequestModel paymentmethodCreate);
+        Task<PaymentMethodViewModel> UpdatePaymentMethod(UpdatePaymentMethodRequestModel paymentmethodUpdate);
+        Task<bool> DeletePaymentMethod(int id);
+        Task<List<PaymentMethodViewModel>> GetAll();
+        Task<PaymentMethodViewModel> GetById(int id);
     }
 
     public class PaymentMethodService : IPaymentMethodService
     {
-        public PaymentMethodViewModel CreatePaymentMethod(CreatePaymentMethodRequestModel paymentmethodCreate)
+        private readonly IMapper _mapper;
+        private readonly NET1710_221_1_JewelryAuctionContext _context;
+
+        public PaymentMethodService(IMapper mapper, NET1710_221_1_JewelryAuctionContext context)
         {
-            throw new NotImplementedException();
+            _mapper = mapper;
+            _context = context;
         }
 
-        public PaymentMethodViewModel UpdatePaymentMethod(UpdatePaymentMethodRequestModel paymentmethodUpdate)
+        public async Task<PaymentMethodViewModel> CreatePaymentMethod(CreatePaymentMethodRequestModel request)
         {
-            throw new NotImplementedException();
+            var paymentMethod = _mapper.Map<PaymentMethod>(request);
+            _context.PaymentMethods.Add(paymentMethod);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<PaymentMethodViewModel>(paymentMethod);
         }
 
-        public bool DeletePaymentMethod(int idTmp)
+        public async Task<bool> DeletePaymentMethod(int id)
         {
-            throw new NotImplementedException();
+            var paymentMethod = await _context.PaymentMethods.FindAsync(id);
+            if (paymentMethod == null)
+                throw new Exception($"PaymentMethod with ID {id} not found.");
+
+            _context.PaymentMethods.Remove(paymentMethod);
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        public List<PaymentMethodViewModel> GetAll()
+        public async Task<List<PaymentMethodViewModel>> GetAll()
         {
-            throw new NotImplementedException();
+            var paymentMethods = await _context.PaymentMethods.ToListAsync();
+            return _mapper.Map<List<PaymentMethodViewModel>>(paymentMethods);
         }
 
-        public PaymentMethodViewModel GetById(int idTmp)
+        public async Task<PaymentMethodViewModel> GetById(int id)
         {
-            throw new NotImplementedException();
+            var paymentMethod = await _context.PaymentMethods.FindAsync(id);
+            if (paymentMethod == null)
+                throw new Exception($"PaymentMethod with ID {id} not found.");
+
+            return _mapper.Map<PaymentMethodViewModel>(paymentMethod);
         }
 
+        public async Task<PaymentMethodViewModel> UpdatePaymentMethod(UpdatePaymentMethodRequestModel paymentmethodUpdate)
+        {
+            var paymentMethod = await _context.PaymentMethods.FindAsync(paymentmethodUpdate.PaymentMethodId);
+            if (paymentMethod == null)
+                throw new Exception($"PaymentMethod with ID {paymentmethodUpdate.PaymentMethodId} not found.");
+
+            _mapper.Map(paymentmethodUpdate, paymentMethod);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<PaymentMethodViewModel>(paymentMethod);
+        }
     }
 
 }

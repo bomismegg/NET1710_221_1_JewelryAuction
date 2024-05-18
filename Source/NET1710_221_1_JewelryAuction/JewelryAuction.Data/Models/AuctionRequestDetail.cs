@@ -17,8 +17,6 @@ public partial class AuctionRequestDetail
 
     public decimal? MinBidIncrement { get; set; }
 
-    public int? CategoryId { get; set; }
-
     public int? SellerId { get; set; }
 
     public virtual ICollection<AuctionRequest> AuctionRequests { get; set; } = new List<AuctionRequest>();
