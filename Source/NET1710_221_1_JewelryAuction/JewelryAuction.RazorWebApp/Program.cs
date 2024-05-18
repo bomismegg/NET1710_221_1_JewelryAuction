@@ -1,7 +1,10 @@
+using JewelryAuction.RazorWebApp.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.InitializerDependencyInjection();
 
 var app = builder.Build();
 
