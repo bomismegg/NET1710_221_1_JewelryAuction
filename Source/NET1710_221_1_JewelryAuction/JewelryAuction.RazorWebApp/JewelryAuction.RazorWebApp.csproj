@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\JewelryAuction.Business\JewelryAuction.Business.csproj" />
+    <ProjectReference Include="..\JewelryAuction.Data\JewelryAuction.Data.csproj" />
+  </ItemGroup>
+
 </Project>
