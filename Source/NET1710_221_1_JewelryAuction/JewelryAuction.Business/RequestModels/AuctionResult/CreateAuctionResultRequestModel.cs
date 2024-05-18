@@ -1,9 +1,9 @@
-
-namespace Ecommerce.BusinessLogic.RequestModels.AuctionResult 
+namespace Ecommerce.BusinessLogic.RequestModels.AuctionResult
 {
+    public class CreateAuctionResultRequestModel
+    {
+        public int UserId { get; set; }
 
-   public class CreateAuctionResultRequestModel {
-     
-   }
-
+        public long? Payment { get; set; }
+    }
 }
