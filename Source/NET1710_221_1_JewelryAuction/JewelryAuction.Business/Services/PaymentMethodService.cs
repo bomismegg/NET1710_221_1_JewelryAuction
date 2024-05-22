@@ -1,5 +1,6 @@
 using AutoMapper;
 using Ecommerce.BusinessLogic.RequestModels.PaymentMethod;
+using JewelryAuction.Business.DAO;
 using JewelryAuction.Business.ViewModels.PaymentMethod;
 using JewelryAuction.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,41 +20,39 @@ namespace JewelryAuction.Business.Services
     public class PaymentMethodService : IPaymentMethodService
     {
         private readonly IMapper _mapper;
-        private readonly NET1710_221_1_JewelryAuctionContext _context;
+        private readonly PaymentMethodDAO _paymentMethodDAO;
 
-        public PaymentMethodService(IMapper mapper, NET1710_221_1_JewelryAuctionContext context)
+        public PaymentMethodService(IMapper mapper, PaymentMethodDAO paymentMethodDAO)
         {
             _mapper = mapper;
-            _context = context;
+            _paymentMethodDAO = paymentMethodDAO;
         }
 
         public async Task<PaymentMethodViewModel> CreatePaymentMethod(CreatePaymentMethodRequestModel request)
         {
             var paymentMethod = _mapper.Map<PaymentMethod>(request);
-            _context.PaymentMethods.Add(paymentMethod);
-            await _context.SaveChangesAsync();
+            await _paymentMethodDAO.CreateAsync(paymentMethod);
             return _mapper.Map<PaymentMethodViewModel>(paymentMethod);
         }
 
         public async Task<bool> DeletePaymentMethod(int id)
         {
-            var paymentMethod = await _context.PaymentMethods.FindAsync(id);
+            var paymentMethod = await _paymentMethodDAO.GetByIdAsync(id);
             if (paymentMethod == null)
                 throw new Exception($"PaymentMethod with ID {id} not found.");
 
-            _context.PaymentMethods.Remove(paymentMethod);
-            return await _context.SaveChangesAsync() > 0;
+            return await _paymentMethodDAO.RemoveAsync(paymentMethod);
         }
 
         public async Task<List<PaymentMethodViewModel>> GetAll()
         {
-            var paymentMethods = await _context.PaymentMethods.ToListAsync();
+            var paymentMethods = await _paymentMethodDAO.GetAllAsync();
             return _mapper.Map<List<PaymentMethodViewModel>>(paymentMethods);
         }
 
         public async Task<PaymentMethodViewModel> GetById(int id)
         {
-            var paymentMethod = await _context.PaymentMethods.FindAsync(id);
+            var paymentMethod = await _paymentMethodDAO.GetByIdAsync(id);
             if (paymentMethod == null)
                 throw new Exception($"PaymentMethod with ID {id} not found.");
 
@@ -62,12 +61,12 @@ namespace JewelryAuction.Business.Services
 
         public async Task<PaymentMethodViewModel> UpdatePaymentMethod(UpdatePaymentMethodRequestModel paymentmethodUpdate)
         {
-            var paymentMethod = await _context.PaymentMethods.FindAsync(paymentmethodUpdate.PaymentMethodId);
+            var paymentMethod = await _paymentMethodDAO.GetByIdAsync(paymentmethodUpdate.PaymentMethodId);
             if (paymentMethod == null)
                 throw new Exception($"PaymentMethod with ID {paymentmethodUpdate.PaymentMethodId} not found.");
 
             _mapper.Map(paymentmethodUpdate, paymentMethod);
-            await _context.SaveChangesAsync();
+            await _paymentMethodDAO.UpdateAsync(paymentMethod);
             return _mapper.Map<PaymentMethodViewModel>(paymentMethod);
         }
     }

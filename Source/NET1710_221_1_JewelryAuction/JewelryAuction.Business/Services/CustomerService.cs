@@ -1,5 +1,6 @@
 using AutoMapper;
 using Ecommerce.BusinessLogic.RequestModels.Customer;
+using JewelryAuction.Business.DAO;
 using JewelryAuction.Business.ViewModels.Customer;
 using JewelryAuction.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,40 +20,38 @@ namespace JewelryAuction.Business.Services
     public class CustomerService : ICustomerService
     {
         private readonly IMapper _mapper;
-        private readonly NET1710_221_1_JewelryAuctionContext _context;
-        public CustomerService(IMapper mapper, NET1710_221_1_JewelryAuctionContext context)
+        private readonly CustomerDAO _customerDAO;
+        public CustomerService(IMapper mapper, CustomerDAO customerDAO)
         {
             _mapper = mapper;
-            _context = context;
+            _customerDAO = customerDAO;
         }
 
         public async Task<CustomerViewModel> CreateCustomer(CreateCustomerRequestModel customerCreate)
         {
             var customer = _mapper.Map<Customer>(customerCreate);
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
+            await _customerDAO.CreateAsync(customer);
             return _mapper.Map<CustomerViewModel>(customer);
         }
 
         public async Task<bool> DeleteCustomer(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _customerDAO.GetByIdAsync(id);
             if (customer == null)
                 throw new Exception($"Customer with ID {id} not found.");
 
-            _context.Customers.Remove(customer);
-            return await _context.SaveChangesAsync() > 0;
+            return await _customerDAO.RemoveAsync(customer);
         }
 
         public async Task<List<CustomerViewModel>> GetAll()
         {
-            var customers = await _context.Customers.ToListAsync();
+            var customers = await _customerDAO.GetAllAsync();
             return _mapper.Map<List<CustomerViewModel>>(customers);
         }
 
         public async Task<CustomerViewModel> GetById(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _customerDAO.GetByIdAsync(id);
             if (customer == null)
                 throw new Exception($"Customer with ID {id} not found.");
 
@@ -61,12 +60,12 @@ namespace JewelryAuction.Business.Services
 
         public async Task<CustomerViewModel> UpdateCustomer(UpdateCustomerRequestModel customerUpdate)
         {
-            var customer = await _context.Customers.FindAsync(customerUpdate.UserId);
+            var customer = await _customerDAO.GetByIdAsync(customerUpdate.UserId);
             if (customer == null)
                 throw new Exception($"Customer with ID {customerUpdate.UserId} not found.");
 
             _mapper.Map(customerUpdate, customer);
-            await _context.SaveChangesAsync();
+            await _customerDAO.UpdateAsync(customer);
             return _mapper.Map<CustomerViewModel>(customer);
         }
     }

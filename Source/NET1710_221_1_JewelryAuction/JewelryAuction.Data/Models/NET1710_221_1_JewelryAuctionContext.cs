@@ -8,6 +8,10 @@ namespace JewelryAuction.Data.Models;
 
 public partial class NET1710_221_1_JewelryAuctionContext : DbContext
 {
+    public NET1710_221_1_JewelryAuctionContext()
+    {
+        
+    }
     public NET1710_221_1_JewelryAuctionContext(DbContextOptions<NET1710_221_1_JewelryAuctionContext> options)
         : base(options)
     {

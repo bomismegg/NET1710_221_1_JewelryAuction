@@ -1,5 +1,6 @@
 using AutoMapper;
 using Ecommerce.BusinessLogic.RequestModels.AuctionRequest;
+using JewelryAuction.Business.DAO;
 using JewelryAuction.Business.ViewModels.AuctionRequest;
 using JewelryAuction.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,40 +20,38 @@ namespace JewelryAuction.Business.Services
     public class AuctionRequestService : IAuctionRequestService
     {
         private readonly IMapper _mapper;
-        private readonly NET1710_221_1_JewelryAuctionContext _context;
-        public AuctionRequestService(IMapper mapper, NET1710_221_1_JewelryAuctionContext context)
+        private readonly AuctionRequestDAO _auctionRequestDAO;
+        public AuctionRequestService(IMapper mapper, AuctionRequestDAO auctionRequestDAO)
         {
             _mapper = mapper;
-            _context = context;
+            _auctionRequestDAO = auctionRequestDAO;
         }
 
         public async Task<AuctionRequestViewModel> CreateAuctionRequest(CreateAuctionRequestRequestModel auctionrequestCreate)
         {
             var auctionRequest = _mapper.Map<AuctionRequest>(auctionrequestCreate);
-            _context.AuctionRequests.Add(auctionRequest);
-            await _context.SaveChangesAsync();
+            await _auctionRequestDAO.CreateAsync(auctionRequest);
             return _mapper.Map<AuctionRequestViewModel>(auctionRequest);
         }
 
         public async Task<bool> DeleteAuctionRequest(int id)
         {
-            var auctionRequest = await _context.AuctionRequests.FindAsync(id);
+            var auctionRequest = await _auctionRequestDAO.GetByIdAsync(id);
             if (auctionRequest == null)
                 throw new Exception($"AuctionRequest with ID {id} not found.");
 
-            _context.AuctionRequests.Remove(auctionRequest);
-            return await _context.SaveChangesAsync() > 0;
+            return await _auctionRequestDAO.RemoveAsync(auctionRequest);
         }
 
         public async Task<List<AuctionRequestViewModel>> GetAll()
         {
-            var auctionRequest = await _context.AuctionRequests.ToListAsync();
+            var auctionRequest = await _auctionRequestDAO.GetAllAsync();
             return _mapper.Map<List<AuctionRequestViewModel>>(auctionRequest);
         }
 
         public async Task<AuctionRequestViewModel> GetById(int id)
         {
-            var auctionRequest = await _context.AuctionRequests.FindAsync(id);
+            var auctionRequest = await _auctionRequestDAO.GetByIdAsync(id);
             if (auctionRequest == null)
                 throw new Exception($"AuctionRequest with ID {id} not found.");
 
@@ -61,12 +60,12 @@ namespace JewelryAuction.Business.Services
 
         public async Task<AuctionRequestViewModel> UpdateAuctionRequest(UpdateAuctionRequestRequestModel auctionrequestUpdate)
         {
-            var auctionRequest = await _context.AuctionRequests.FindAsync(auctionrequestUpdate.AucId);
+            var auctionRequest = await _auctionRequestDAO.GetByIdAsync(auctionrequestUpdate.AucId);
             if (auctionRequest == null)
                 throw new Exception($"AuctionRequest with ID {auctionrequestUpdate.AucId} not found.");
 
             _mapper.Map(auctionrequestUpdate, auctionRequest);
-            await _context.SaveChangesAsync();
+            await _auctionRequestDAO.UpdateAsync(auctionRequest);
             return _mapper.Map<AuctionRequestViewModel>(auctionRequest);
         }
     }
