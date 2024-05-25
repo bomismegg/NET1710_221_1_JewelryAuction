@@ -2,6 +2,7 @@ using AutoMapper;
 using Ecommerce.BusinessLogic.RequestModels.AuctionRequest;
 using JewelryAuction.Business.DAO;
 using JewelryAuction.Business.ViewModels.AuctionRequest;
+using JewelryAuction.Data;
 using JewelryAuction.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,10 +16,17 @@ namespace JewelryAuction.Business.Services
         Task<bool> DeleteAuctionRequest(int id);
         Task<List<AuctionRequestViewModel>> GetAll();
         Task<AuctionRequestViewModel> GetById(int id);
-    }
+        Task<AuctionRequestViewModel> Save(int id);
 
+    }
+    
     public class AuctionRequestService : IAuctionRequestService
     {
+        private readonly UnitOfWork _unitOfWork;
+        public AuctionRequestService()
+        {
+            _unitOfWork ??= new UnitOfWork();
+        }
         private readonly IMapper _mapper;
         private readonly AuctionRequestDAO _auctionRequestDAO;
         public AuctionRequestService(IMapper mapper, AuctionRequestDAO auctionRequestDAO)
@@ -67,6 +75,19 @@ namespace JewelryAuction.Business.Services
             _mapper.Map(auctionrequestUpdate, auctionRequest);
             await _auctionRequestDAO.UpdateAsync(auctionRequest);
             return _mapper.Map<AuctionRequestViewModel>(auctionRequest);
+        }
+        public async Task<bool> Save(int id)
+        {
+            var auctionRequest = await _auctionRequestDAO.GetByIdAsync(id);
+            if (auctionRequest == null)
+                throw new Exception($"AuctionRequest with ID {id} not found.");
+
+            return await _auctionRequestDAO.RemoveAsync(auctionRequest);
+        }
+
+         Task<AuctionRequestViewModel> IAuctionRequestService.Save(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

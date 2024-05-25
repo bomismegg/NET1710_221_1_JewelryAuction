@@ -80,7 +80,7 @@ public partial class NET1710_221_1_JewelryAuctionContext : DbContext
             entity.Property(e => e.ProductId)
                 .ValueGeneratedNever()
                 .HasColumnName("Product_ID");
-            entity.Property(e => e.CategoryId).HasColumnName("Category_ID");
+      
             entity.Property(e => e.MinBidIncrement)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("Min_Bid_Increment");
